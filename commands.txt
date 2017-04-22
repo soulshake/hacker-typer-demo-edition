@@ -1,0 +1,3 @@
+whois mushify.xyz
+docker ps
+whoami

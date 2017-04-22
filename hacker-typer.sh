@@ -1,28 +1,30 @@
 #!/bin/bash
 
-echo -n '$ '
+TEXT=$(cat commands.txt)
 
-TEXT="whois mushify.xyz
-docker ps
-whoami
-"
-
-#while IFS= read -r line; do
-    # do something with "$line" <-- quoted almost always
-#done < file
-# note: might be better to suppress all typed characters
-# http://stackoverflow.com/questions/10987039/prevent-typed-characters-from-being-displayed-like-disabling-echo-attribute-i
+# Set the internal field separator to a newline for file parsing
 IFS="
 "
+
+# Don't output any typed characters to the terminal
+stty -echo
+
 for line in $TEXT; do
+    # Print a fake PS1
+    echo -n '$ '
+
+    # Print the command one character at a time, regardless of which key the user actually typed
     len=${#line}
     for i in $(seq 0 $len); do
+        # Read a single character (without displaying it)
         read -s -n 1
+        # Echo a carriage return to delete the whole line
         echo -n -e "\r"
+        # Reprint with one additional character
         echo -n "\$ ${line[@]:0:i}"
     done
 
-    # we've printed the full command; stop and wait for enter (i.e. "")
+    # We've now printed the full command; stop and wait for enter (i.e. "")
     while true; do
         read -s -n 1 keystroke
         if [[ $keystroke == "" ]]; then
@@ -30,7 +32,7 @@ for line in $TEXT; do
             break
         fi
     done
-
-    echo -n "\$ "
-    continue
 done
+
+# Restore the terminal
+stty echo
